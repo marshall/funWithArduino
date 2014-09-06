@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      .container {
+        width: 100%;
+        height: 350px;
+      }
+
+      .slider {
+        border: 2px solid black;
+        border-radius: 5px;
+        width: 5px;
+        height: 50px;
+        margin: 20px;
+      }
+
+      #slider1 { background-color: red; }
+      #slider2 { background-color: green; }
+      #slider3 { background-color: blue; }
+
+      #color-wheel {
+        border-radius: 75px;
+        border: 2px solid black;
+        width: 150px;
+        height: 150px;
+        margin: 20px;
+        float: left;
+      }
+
+      #temp {
+        font-size: 28pt;
+        font-weight: bold;
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div id="slider1" class="slider"></div>
+      <div id="slider2" class="slider"></div>
+      <div id="slider3" class="slider"></div>
+      <div id="color-wheel"></div>
+    </div>
+
+    <div id="temp"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/sprintf/0.0.7/sprintf.js"></script>
+    <script>
+      var socket = io();
+      var rgb = [0, 0, 0];
+      var colorWheel = document.getElementById('color-wheel');
+      var temp = document.getElementById('temp');
+
+      socket.on('slider-value', function(msg) {
+        var slider = document.getElementById('slider' + msg.id);
+        rgb[msg.id - 1] = Math.floor(msg.value);
+
+        var width = (msg.value / 255) * 300;
+        slider.style.width = width + 'px';
+        console.log(rgb);
+
+        colorWheel.style.backgroundColor = 'rgb(' + rgb.join(',') + ')';
+      });
+
+      socket.on('temperature', function(msg) {
+        temp.innerText = sprintf('%0.2f°F', msg.f);
+      });
+    </script>
+  </body>
+</html>
